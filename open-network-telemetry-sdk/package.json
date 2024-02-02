@@ -1,0 +1,22 @@
+{
+  "name": "open-network-telemetry-sdk",
+  "version": "1.0.0",
+  "description": "SDK to generate telemetry based on open network specifications",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "shiva-rakshith",
+  "license": "ISC",
+  "dependencies": {
+    "ajv": "^8.12.0",
+    "archiver": "^6.0.1",
+    "axios": "^1.6.7",
+    "axios-retry": "^4.0.0",
+    "fs": "^0.0.1-security",
+    "ioredis": "^5.3.2",
+    "unzipper": "^0.10.14",
+    "uuid": "^9.0.1"
+  }
+}
