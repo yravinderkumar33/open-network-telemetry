@@ -2,7 +2,7 @@
   "name": "open-network-telemetry-sdk",
   "version": "1.0.0",
   "description": "SDK to generate telemetry based on open network specifications",
-  "main": "index.js",
+  "main": "test.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
