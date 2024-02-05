@@ -14,7 +14,7 @@ Following are the details about configuration properties. To generate telemetry 
 | domain                         | Domain for the network                                           | Yes      | -             |
 | role                           | Role of the participant                                          | Yes      | -             |
 | batchSize            | Number of telemetry events per batch                             | Yes      | 100           |
-| syncInterval         | Time interval for telemetry synchronization                      | Yes      | 5             |
+| syncInterval         | Time interval(in minutes) for telemetry synchronization                    | Yes      | 5             |
 | retry                | Number of retry attempts in case of failure                      | Yes      | 3             |
 | storageType          | Type of storage for telemetry data. Allowed values are IN-MEMORY and REDIS. | Yes      | IN-MEMORY     |
 | backupFilePath                 | Path for storing backup telemetry data                           | Yes      | backups       |
@@ -28,11 +28,11 @@ Following are the details about configuration properties. To generate telemetry 
 
 ### Telemetry Initialization:
 Method signature:
-```
-telemetry.init(config)
+```javascript
+telemetry.init(config);
 ```
 Method Arguments:
-```
+```json
 config = {
   "participantId": "test.bap-123",
   "participantUri": "https://test.bap-123.io",
@@ -65,7 +65,7 @@ SDK generates the following type of events:
 2. Raw Event - This event will be sent to participant data platfrom.
 
 API Event Example: 
-```
+```json
 {
   "eid": "API",
   "ets": 1707110363073,
@@ -101,7 +101,7 @@ API Event Example:
 ```
 
 Raw Event Example:
-```
+```json
 {
   "context": {
     "domain": "onest:learning-experiences",
@@ -132,11 +132,11 @@ Raw Event Example:
 ```
 
 Method signature:
-```
+```javascript
 generate : function(request, response) { }
 ```
 Method Arguments:
-```
+```json
 request = {
     "context": {
         "domain": "onest:learning-experiences",
@@ -152,7 +152,7 @@ request = {
     "message": {}
 }
 ```
-```
+```json
 response = {
     "statusCode" : "",
     "duration": "",
