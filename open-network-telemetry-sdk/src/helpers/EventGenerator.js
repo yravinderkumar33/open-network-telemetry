@@ -1,4 +1,4 @@
-import { v1 } from "uuid";
+import crypto from "crypto";
 
 
 export function createTelemetryEvent(request, response, eventType, config){
@@ -15,7 +15,6 @@ function createAPIEvent(request, response, config) {
     event.eid = "API";
     event.ets = Date.now();
     event.ver = "1.0";
-    event.mid = v1();
 
     event.context = {
         domain: config.domain,
@@ -48,10 +47,18 @@ function createAPIEvent(request, response, config) {
     if (response.hasOwnProperty('duration')) event.data.duration = response.duration;
     if (response.hasOwnProperty('error')) event.data.error = response.error;
 
+    event.mid = generateCheckSum(event);
+
     return event;
 }
 
 function createRawDataEvent(request, response) {
     request.response = response;
     return request;
+}
+
+function generateCheckSum(data) {
+    const jsonString = JSON.stringify(data);
+    const checksum = crypto.createHash('md5').update(jsonString).digest('hex');
+    return checksum;
 }

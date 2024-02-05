@@ -8,7 +8,6 @@ import path from "path";
 import unzipper from "unzipper";
 import { v1 } from "uuid";
 import axiosRetry from "axios-retry";
-axiosRetry(axios, { retries: 3 });
 
 
 
@@ -23,11 +22,12 @@ export class TelemetryDispatcher {
         if (config.telemetry.storageType.toLowerCase() === 'redis') {
             this.redisClient = new RedisClient(config);
         }
+        axiosRetry(axios, { retries: this.config.telemetry.retry, retryDelay: axiosRetry.exponentialDelay });
     }
 
     async storeData(event, eventType) {
         if (this.redisClient) {
-            await this.redisClient.pushList(eventType, JSON.stringify(event));
+            this.redisClient.pushList(eventType, JSON.stringify(event));
         } else {
             if (!this.localStorage[eventType]) {
                 this.localStorage[eventType] = [];
