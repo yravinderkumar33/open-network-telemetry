@@ -20,36 +20,38 @@ export class RedisClient {
     }
 
 
-    pushList(key, value) {
+    async pushList(key, value) {
         try {
-            this.redisClient.lpush(key, value);
+            await this.redisClient.lpush(key, value);
         } catch (error) {
             console.error('Error pushing data to Redis:', error);
             throw new Error('Error pushing data to Redis:', error.message);
         }
     }
 
-    getList(key) {
+    async getList(key) {
         try {
-            return this.redisClient.lrange(key, 0, -1);
+            let data = await this.redisClient.lrange(key, 0, -1);
+            return data;
         } catch (error) {
             console.error('Error fetching data from Redis:', error);
             throw new Error('Error fetching data from Redis:', error.message);
         }
     }
 
-    getListLength(key) {
+    async getListLength(key) {
         try {
-            return this.redisClient.llen(key);
+            let data = await this.redisClient.llen(key);
+            return data;
         } catch (error) {
             console.error('Error fetching list length from Redis:', error);
             throw new Error('Error fetching list length from Redis:', error.message);
         }
     }
 
-    delKey(key) {
+    async delKey(key) {
         try {
-            this.redisClient.del(key);
+            await this.redisClient.del(key);
         } catch (error) {
             console.error('Error deleting key from Redis:', error);
             throw new Error('Error deleting key from Redis:', error.message);

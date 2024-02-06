@@ -8,9 +8,6 @@
     "participantUri": {
       "type": "string"
     },
-    "domain": {
-      "type": "string"
-    },
     "role": {
       "type": "string"
     },
@@ -73,5 +70,5 @@
       "required": ["batchSize", "syncInterval", "retry", "storageType", "network", "backupFilePath"]
     }
   },
-  "required": ["participantId", "participantUri", "domain", "role", "telemetry"]
+  "required": ["participantId", "participantUri", "role", "telemetry"]
 }

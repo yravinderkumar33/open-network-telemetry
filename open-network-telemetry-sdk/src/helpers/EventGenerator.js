@@ -17,7 +17,7 @@ function createAPIEvent(request, response, config) {
     event.ver = "1.0";
 
     event.context = {
-        domain: config.domain,
+        domain: request.context.domain,
 
         producer: {
             id: config.participantId,
@@ -57,7 +57,7 @@ function createRawDataEvent(request, response) {
     return request;
 }
 
-function generateCheckSum(data) {
+export function generateCheckSum(data) {
     const jsonString = JSON.stringify(data);
     const checksum = crypto.createHash('md5').update(jsonString).digest('hex');
     return checksum;

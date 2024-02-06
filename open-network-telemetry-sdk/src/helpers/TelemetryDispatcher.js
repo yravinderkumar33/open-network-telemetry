@@ -1,12 +1,11 @@
 import { RedisClient } from "../utils/RedisUtil.js";
 import axios from "axios";
-import { createTelemetryEvent } from "./EventGenerator.js";
+import { createTelemetryEvent, generateCheckSum } from "./EventGenerator.js";
 import archiver from "archiver";
 import { promises as fsPromises } from 'fs';
 import fs from 'fs';
 import path from "path";
 import unzipper from "unzipper";
-import { v1 } from "uuid";
 import axiosRetry from "axios-retry";
 
 
@@ -16,8 +15,7 @@ export class TelemetryDispatcher {
         this.config = config;
         this.localStorage = {};
         this.redisClient = null;
-        this.rawLastSyncTime = Date.now();
-        this.networkLastSyncTime = Date.now();
+        this.isSyncing = false;
 
         if (config.telemetry.storageType.toLowerCase() === 'redis') {
             this.redisClient = new RedisClient(config);
@@ -27,7 +25,7 @@ export class TelemetryDispatcher {
 
     async storeData(event, eventType) {
         if (this.redisClient) {
-            this.redisClient.pushList(eventType, JSON.stringify(event));
+            await this.redisClient.pushList(eventType, JSON.stringify(event));
         } else {
             if (!this.localStorage[eventType]) {
                 this.localStorage[eventType] = [];
@@ -38,7 +36,8 @@ export class TelemetryDispatcher {
 
     async getDataSize(eventType) {
         if (this.redisClient) {
-            return await this.redisClient.getListLength(eventType);
+            const size = await this.redisClient.getListLength(eventType);
+            return size
         } else {
             return this.localStorage[eventType] ? this.localStorage[eventType].length : 0;
         }
@@ -56,12 +55,13 @@ export class TelemetryDispatcher {
         }
     }
 
-    flushData(eventType) {
+    async flushData(eventType) {
         if (this.redisClient) {
-            this.redisClient.delKey(eventType);
+            await this.redisClient.delKey(eventType);
         } else {
             this.localStorage[eventType] = [];
         }
+        console.log('Data is flushed successfully')
     }
 
     async processTelemetry(request, response, eventType) {
@@ -70,27 +70,43 @@ export class TelemetryDispatcher {
             const event = createTelemetryEvent(request, response, eventType, this.config);
 
             await this.storeData(event, `${dataType}-event`);
-            console.log(`${dataType} event generated`);
+            console.log(`${dataType} telemetry event generated :: api action: ${request.context.action} :: message id: ${request.context.message_id}`);
 
             const dataSize = await this.getDataSize(`${dataType}-event`);
-            console.log(`Stored ${dataType} data size: `, dataSize);
-
-            if (Date.now() - this[`${dataType}LastSyncTime`] > this.config.telemetry.syncInterval * 60 * 1000 || dataSize >= this.config.telemetry.batchSize) {
-                try {
-                    const payload = Object.values(await this.getData(`${dataType}-event`)).flat();
-                    this.pushToTelemetryServer(dataType, payload);
-                    this.flushData(`${dataType}-event`);
-                    this[`${dataType}LastSyncTime`] = Date.now();
-                    await this.processBackupFiles()
-                } catch (error) {
-                    console.error(`Error while pushing ${dataType} data to server: `, error);
-                    if (this.config.telemetry.storageType.toLowerCase() === 'local') {
-                        this.createBackup(dataType, Object.values(await this.getData(`${dataType}-event`)).flat());
-                    }
-                } finally {
-                    this.localStorage[eventType] = [];
-                }
+            if (dataSize >= this.config.telemetry.batchSize) {
+                await this.syncTelemetry();
             }
+        }
+    }
+
+    async syncTelemetry() {
+        const eventTypeList = ['api', 'raw']
+        if (!this.isSyncing) {
+            this.isSyncing = true;
+            console.log('Started syncing telemetry...');
+            for (const eventType of eventTypeList) {
+                let dataType = this.getDataType(eventType);
+                let dataSize = await this.getDataSize(`${dataType}-event`);
+                if (dataSize > 0) {
+                    try {
+                        const payload = Object.values(await this.getData(`${dataType}-event`)).flat();
+                        await this.pushToTelemetryServer(dataType, payload);
+                        await this.flushData(`${dataType}-event`);
+                        await this.processBackupFiles();
+                        console.log(`${dataType} data is successfully pushed to server!!!`);
+                    } catch (error) {
+                        console.error(`Error while pushing ${dataType} data to server: `, error.message);
+                        if (this.config.telemetry.storageType.toLowerCase() === 'local') {
+                            this.createBackup(dataType, Object.values(await this.getData(`${dataType}-event`)).flat());
+                        }
+                    } finally {
+                        this.localStorage[`${dataType}-event`] = [];
+                    }
+                }
+
+            }
+            this.isSyncing = false;
+            console.log('Finished syncing telemetry...');
         }
     }
 
@@ -114,6 +130,9 @@ export class TelemetryDispatcher {
 
     async processBackupFiles() {
         const backupFolderPath = this.config.telemetry.backupFilePath || 'backups';
+        await fsPromises.access(backupFolderPath)
+            .then(() => true)
+            .catch(() => fsPromises.mkdir(backupFolderPath, { recursive: true }));
         let files = await fsPromises.readdir(backupFolderPath);
         files = files.filter(value => value.startsWith('telemetry_'))
 
@@ -133,7 +152,7 @@ export class TelemetryDispatcher {
                     const dataType = extractedData.type;
                     const telemetryConfig = this.config.telemetry[dataType];
                     if (telemetryConfig.url !== '') {
-                        this.pushToTelemetryServer(dataType, extractedData.payload);
+                        await this.pushToTelemetryServer(dataType, extractedData.payload);
 
                         fsPromises.access(filePath)
                             .then(() => fsPromises.unlink(filePath))
@@ -147,7 +166,7 @@ export class TelemetryDispatcher {
                     }
 
                 } catch (error) {
-                    console.error(`Error while processing file ${file}: `, error);
+                    console.error(`Error while pushing backup data to server :: file: ${file} :: error: `, error);
                 }
 
             }
@@ -165,17 +184,13 @@ export class TelemetryDispatcher {
         }
     }
 
-    async pushToTelemetryServer(dataType, payload){
-        try {
-            await axios.post(this.config.telemetry[dataType].url, {
-                data: {
-                    id: v1(),
-                    events: payload,
-                },
-            });
-            console.log(`${dataType} data is successfully pushed to server!!!`);
-        } catch (error) {
-            throw new Error(`Error while sending ${dataType} data to server: ${error.message}`);
-        }
+    async pushToTelemetryServer(dataType, payload) {
+        await axios.post(this.config.telemetry[dataType].url, {
+            data: {
+                id: generateCheckSum(payload),
+                events: payload,
+            },
+        });
     }
+
 }

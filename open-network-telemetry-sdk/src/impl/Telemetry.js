@@ -3,29 +3,34 @@ import { TelemetryDispatcher } from "../helpers/TelemetryDispatcher.js";
 
 
 class Telemetry {
+    static config = {};
+    static dispatcher;
 
-    constructor() {
-        this.config = {};
-    }
-
-    init(inputConfig) {
+    static init(inputConfig) {
         try {
-            this.config = new TelemetryConfig(inputConfig);
+            Telemetry.config = new TelemetryConfig(inputConfig);
             console.log('Telemetry initialized successfully');
+
+            if (!Telemetry.dispatcher) {
+                Telemetry.dispatcher = new TelemetryDispatcher(Telemetry.config);
+                setInterval(() => {
+                    Telemetry.dispatcher.syncTelemetry(true)
+                }, 10 * 1000);
+            }
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
-    async generate(request, response) {
-        const dispatcher = new TelemetryDispatcher(this.config);
-
-        //api event
-        await dispatcher.processTelemetry(request, response, 'api');
-
-        //raw event
-        await dispatcher.processTelemetry(request, response, 'raw');
+    static async generate(request, response) {
+        if (!Telemetry.dispatcher) {
+            console.error('Dispatcher not initialized. Call Telemetry.init() first.');
+            return;
+        }
+        await Telemetry.dispatcher.processTelemetry(request, response, 'api');
+        await Telemetry.dispatcher.processTelemetry(request, response, 'raw');
     }
 }
+
 
 export default Telemetry;

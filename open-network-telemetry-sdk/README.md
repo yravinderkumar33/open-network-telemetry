@@ -11,12 +11,11 @@ Following are the details about configuration properties. To generate telemetry 
 |--------------------------------|------------------------------------------------------------------|----------|---------------|
 | participantId                  | Identifier for the participant                                  | Yes      | -             |
 | participantUri                 | URI for the participant                                          | Yes      | -             |
-| domain                         | Domain for the network                                           | Yes      | -             |
 | role                           | Role of the participant                                          | Yes      | -             |
 | batchSize            | Number of telemetry events per batch                             | Yes      | 100           |
 | syncInterval         | Time interval(in minutes) for telemetry synchronization                    | Yes      | 5             |
 | retry                | Number of retry attempts in case of failure                      | Yes      | 3             |
-| storageType          | Type of storage for telemetry data. Allowed values are IN-MEMORY and REDIS. | Yes      | IN-MEMORY     |
+| storageType          | Type of storage for telemetry data. Allowed values are LOCAL and REDIS. | Yes      | LOCAL     |
 | backupFilePath                 | Path for storing backup telemetry data                           | Yes      | backups       |
 | redis.host                     | Hostname or IP address of the Redis server                       | If storageType is REDIS | localhost |
 | redis.port                     | Port number for the Redis server                                 | If storageType is REDIS | 6379        |
@@ -27,22 +26,23 @@ Following are the details about configuration properties. To generate telemetry 
 
 
 ### Telemetry Initialization:
+
+Telemetry is a singleton class, once it is initialized, can be used anywhere in the application to generate the telemetry.
 Method signature:
 ```javascript
-telemetry.init(config);
+Telemetry.init(config);
 ```
 Method Arguments:
 ```json
 config = {
   "participantId": "test.bap-123",
   "participantUri": "https://test.bap-123.io",
-  "domain": "",
   "role": "BAP",
   "telemetry": {
     "batchSize": 100,
     "syncInterval": 5,
     "retry": 3,
-    "storageType": "IN-MEMORY",
+    "storageType": "local",
     "backupFilePath": "backups",
     "redis": {
        "host": "localhost",
@@ -133,7 +133,7 @@ Raw Event Example:
 
 Method signature:
 ```javascript
-generate : function(request, response) { }
+Telemetry.generate(request,response);
 ```
 Method Arguments:
 ```json
