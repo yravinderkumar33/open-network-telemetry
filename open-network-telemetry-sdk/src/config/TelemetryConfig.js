@@ -1,11 +1,9 @@
 import Ajv from "ajv";
-import fs from "fs";
-import path from "path";
+import configSchema from './../../schemas/config-schema.json' assert { type: "json" };
 
 class TelemetryConfig {
     constructor(config) {
 
-        const configSchema = JSON.parse(fs.readFileSync(path.resolve("./schemas", 'config-schema.json'), 'utf8'));
         validateConfig(configSchema, config);
 
         this.participantId = config.participantId;
