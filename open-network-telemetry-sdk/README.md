@@ -33,8 +33,9 @@ Method signature:
 Telemetry.init(config);
 ```
 Method Arguments:
+config:
 ```json
-config = {
+{
   "participantId": "test.bap-123",
   "participantUri": "https://test.bap-123.io",
   "role": "BAP",
@@ -136,8 +137,9 @@ Method signature:
 Telemetry.generate(request,response);
 ```
 Method Arguments:
+request:
 ```json
-request = {
+{
     "context": {
         "domain": "onest:learning-experiences",
         "action": "search",
@@ -152,8 +154,10 @@ request = {
     "message": {}
 }
 ```
+
+response:
 ```json
-response = {
+{
     "statusCode" : "",
     "duration": "",
     "message": {
