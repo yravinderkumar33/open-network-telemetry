@@ -9,7 +9,6 @@ import unzipper from "unzipper";
 import axiosRetry from "axios-retry";
 
 
-
 export class TelemetryDispatcher {
     constructor(config) {
         this.config = config;
@@ -87,13 +86,16 @@ export class TelemetryDispatcher {
             for (const eventType of eventTypeList) {
                 let dataType = this.getDataType(eventType);
                 let dataSize = await this.getDataSize(`${dataType}-event`);
+                console.log(`Stored ${dataType} data size: ${dataSize}`);
                 if (dataSize > 0) {
                     try {
                         const payload = Object.values(await this.getData(`${dataType}-event`)).flat();
                         await this.pushToTelemetryServer(dataType, payload);
+                        
+                        console.log(`${dataType} data is successfully pushed to server!!!`);
+
                         await this.flushData(`${dataType}-event`);
                         await this.processBackupFiles();
-                        console.log(`${dataType} data is successfully pushed to server!!!`);
                     } catch (error) {
                         console.error(`Error while pushing ${dataType} data to server: `, error.message);
                         if (this.config.telemetry.storageType.toLowerCase() === 'local') {

@@ -1,4 +1,4 @@
-import Telemetry from "./src/impl/Telemetry.js"
+import { Telemetry } from "./src/index.js"
 
 function testfunction(){
 

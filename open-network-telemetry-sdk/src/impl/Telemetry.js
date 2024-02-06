@@ -2,7 +2,7 @@ import TelemetryConfig from "../config/TelemetryConfig.js";
 import { TelemetryDispatcher } from "../helpers/TelemetryDispatcher.js";
 
 
-class Telemetry {
+export class Telemetry {
     static config = {};
     static dispatcher;
 
@@ -31,6 +31,3 @@ class Telemetry {
         await Telemetry.dispatcher.processTelemetry(request, response, 'raw');
     }
 }
-
-
-export default Telemetry;
