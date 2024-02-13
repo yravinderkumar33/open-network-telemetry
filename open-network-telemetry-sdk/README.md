@@ -23,6 +23,33 @@ Following are the details about configuration properties. To generate telemetry 
 | network.url          | URL for sending telemetry data to the network data platform       | Yes      | -             |
 | rawData.url          | URL for sending raw telemetry data to participant data platform   | Optional | -             |
 
+### Sample Config:
+```json
+{
+  "participantId": "test.bap-123",
+  "participantUri": "https://test.bap-123.io",
+  "role": "BAP",
+  "telemetry": {
+    "batchSize": 100,
+    "syncInterval": 5,
+    "retry": 3,
+    "storageType": "local",
+    "backupFilePath": "backups",
+    "redis": {
+       "host": "localhost",
+       "port": 6379,
+       "db": 4
+    },
+    "network": {
+      "url": "https://url-to-network-data-platform"
+    },
+    "rawData": {
+      "url": "https://url-to-participant-data-platform"
+    }
+  }
+}
+```
+
 ### Telemetry Event Types:
 
 SDK generates the following type of events:
@@ -103,32 +130,8 @@ Raw Event Example:
 app.use(telemetryMiddleware(config));
 ```
 Method Arguments:
-config:
-```json
-{
-  "participantId": "test.bap-123",
-  "participantUri": "https://test.bap-123.io",
-  "role": "BAP",
-  "telemetry": {
-    "batchSize": 100,
-    "syncInterval": 5,
-    "retry": 3,
-    "storageType": "local",
-    "backupFilePath": "backups",
-    "redis": {
-       "host": "localhost",
-       "port": 6379,
-       "db": 4
-    },
-    "network": {
-      "url": "https://url-to-network-data-platform"
-    },
-    "rawData": {
-      "url": "https://url-to-participant-data-platform"
-    }
-  }
-}
-```
+config: [Link to Sample Config](#sample-config)
+
 
 Telemetry middleware signature:
 ```javascript
