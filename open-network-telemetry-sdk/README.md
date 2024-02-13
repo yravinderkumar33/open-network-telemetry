@@ -1,6 +1,6 @@
 # Telemetry SDK
 
-Telemetry SDK will help to generate the different telemetry events. These events sync to the server in a batch or in periodic intervals as defined in the configuration.
+Telemetry SDK will help to generate the different telemetry events. These events sync to the server in a batch or in periodic intervals as per the configuration.
 
 ### Configuration:
 
@@ -23,7 +23,7 @@ Following are the details about configuration properties. To generate telemetry 
 | network.url          | URL for sending telemetry data to the network data platform       | Yes      | -             |
 | rawData.url          | URL for sending raw telemetry data to participant data platform   | Optional | -             |
 
-### Sample Config:
+#### Sample Config:
 ```json
 {
   "participantId": "test.bap-123",
@@ -57,7 +57,7 @@ SDK generates the following type of events:
 1. API Event - This event will be sent to network data platform.
 2. Raw Event - This event will be sent to participant data platfrom.
 
-API Event Example: 
+**API Event Example:**
 ```json
 {
   "eid": "API",
@@ -93,7 +93,7 @@ API Event Example:
 }
 ```
 
-Raw Event Example:
+**Raw Event Example:**
 ```json
 {
   "context": {
@@ -125,15 +125,14 @@ Raw Event Example:
 ```
 
 ### Genrate Telemetry Using Middleware:
-
 ```javascript
 app.use(telemetryMiddleware(config));
 ```
-Method Arguments:
-config: [Link to Sample Config](#sample-config)
+**Method Arguments:**
 
+config: [Refer to Sample Config](#sample-config)
 
-Telemetry middleware signature:
+**Telemetry middleware signature:**
 ```javascript
 export const telemetryMiddleware = (inputConfig) => {
 
@@ -148,7 +147,8 @@ export const telemetryMiddleware = (inputConfig) => {
     return generate;
 };
 ```
-Method Arguments:
+**Method Arguments:**
+
 req.body:
 ```json
 {
@@ -167,7 +167,7 @@ req.body:
 }
 ```
 
-res.body
+res.body:
 ```json
 {
     "statusCode" : "",
@@ -182,42 +182,19 @@ res.body
 ### Generate Telemetry Using Class:
 
 Telemetry is a singleton class, once it is initialized, can be used anywhere in the application to generate the telemetry.
-Method signature:
+**Method signature:**
 ```javascript
 Telemetry.init(config);
 ```
-Method Arguments:
-config:
-```json
-{
-  "participantId": "test.bap-123",
-  "participantUri": "https://test.bap-123.io",
-  "role": "BAP",
-  "telemetry": {
-    "batchSize": 100,
-    "syncInterval": 5,
-    "retry": 3,
-    "storageType": "local",
-    "backupFilePath": "backups",
-    "redis": {
-       "host": "localhost",
-       "port": 6379,
-       "db": 4
-    },
-    "network": {
-      "url": "https://url-to-network-data-platform"
-    },
-    "rawData": {
-      "url": "https://url-to-participant-data-platform"
-    }
-  }
-}
-```
+**Method Arguments:**
+
+config: [Refer to Sample Config](#sample-config)
 
 ```javascript
 Telemetry.generate(request,response);
 ```
-Method Arguments:
+**Method Arguments:**
+
 request:
 ```json
 {
