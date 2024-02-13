@@ -29,7 +29,7 @@ let config = {
     }
 }
 
-
+app.use(telemetryMiddleware(config));
 
 app.post('/telemetry/generate', function (req, res) {
    console.log('in telemetry api');
@@ -41,8 +41,6 @@ app.post('/telemetry/generate', function (req, res) {
 };
 res.json(responseData);
 })
-
-app.use(telemetryMiddleware(config));
 
 var server = app.listen(8081, function () {
    var host = server.address().address
