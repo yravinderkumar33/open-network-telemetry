@@ -23,43 +23,8 @@ Following are the details about configuration properties. To generate telemetry 
 | network.url          | URL for sending telemetry data to the network data platform       | Yes      | -             |
 | rawData.url          | URL for sending raw telemetry data to participant data platform   | Optional | -             |
 
+### Telemetry Event Types:
 
-
-### Telemetry Initialization:
-
-Telemetry is a singleton class, once it is initialized, can be used anywhere in the application to generate the telemetry.
-Method signature:
-```javascript
-Telemetry.init(config);
-```
-Method Arguments:
-config:
-```json
-{
-  "participantId": "test.bap-123",
-  "participantUri": "https://test.bap-123.io",
-  "role": "BAP",
-  "telemetry": {
-    "batchSize": 100,
-    "syncInterval": 5,
-    "retry": 3,
-    "storageType": "local",
-    "backupFilePath": "backups",
-    "redis": {
-       "host": "localhost",
-       "port": 6379,
-       "db": 4
-    },
-    "network": {
-      "url": "https://url-to-network-data-platform"
-    },
-    "rawData": {
-      "url": "https://url-to-participant-data-platform"
-    }
-  }
-}
-```
-### Telemetry Generation:
 SDK generates the following type of events:
 
 1. API Event - This event will be sent to network data platform.
@@ -132,7 +97,120 @@ Raw Event Example:
 }
 ```
 
+### Genrate Telemetry Using Middleware:
+
+```javascript
+app.use(telemetryMiddleware(config));
+```
+Method Arguments:
+config:
+```json
+{
+  "participantId": "test.bap-123",
+  "participantUri": "https://test.bap-123.io",
+  "role": "BAP",
+  "telemetry": {
+    "batchSize": 100,
+    "syncInterval": 5,
+    "retry": 3,
+    "storageType": "local",
+    "backupFilePath": "backups",
+    "redis": {
+       "host": "localhost",
+       "port": 6379,
+       "db": 4
+    },
+    "network": {
+      "url": "https://url-to-network-data-platform"
+    },
+    "rawData": {
+      "url": "https://url-to-participant-data-platform"
+    }
+  }
+}
+```
+
+Telemetry middleware signature:
+```javascript
+export const telemetryMiddleware = (inputConfig) => {
+
+    Telemetry.init(inputConfig);
+
+    const generate = async (req, res, next) => {
+        res.body.statusCode = res?.statusCode;
+        Telemetry.generate(req.body, res.body);
+        next();
+    };
+
+    return generate;
+};
+```
+Method Arguments:
+req.body:
+```json
+{
+    "context": {
+        "domain": "onest:learning-experiences",
+        "action": "search",
+        "version": "1.1.0",
+        "bap_id": "le-ps-bap-network.onest.network",
+        "bap_uri": "https://le-ps-bap-network.onest.network",
+        "transaction_id": "a9aaecca-10b7-4d19-b640-b047a7c62196",
+        "message_id": "0d30bfbf-87b8-43d2-8f95-36ebb9a24fd6",
+        "ttl": "PT10M",
+        "timestamp": "2023-02-15T15:14:30.560Z"
+    },
+    "message": {}
+}
+```
+
+res.body
+```json
+{
+    "statusCode" : "",
+    "message": {
+        "ack": {
+            "status": "ACK"
+        }
+    }
+}
+```
+
+### Generate Telemetry Using Class:
+
+Telemetry is a singleton class, once it is initialized, can be used anywhere in the application to generate the telemetry.
 Method signature:
+```javascript
+Telemetry.init(config);
+```
+Method Arguments:
+config:
+```json
+{
+  "participantId": "test.bap-123",
+  "participantUri": "https://test.bap-123.io",
+  "role": "BAP",
+  "telemetry": {
+    "batchSize": 100,
+    "syncInterval": 5,
+    "retry": 3,
+    "storageType": "local",
+    "backupFilePath": "backups",
+    "redis": {
+       "host": "localhost",
+       "port": 6379,
+       "db": 4
+    },
+    "network": {
+      "url": "https://url-to-network-data-platform"
+    },
+    "rawData": {
+      "url": "https://url-to-participant-data-platform"
+    }
+  }
+}
+```
+
 ```javascript
 Telemetry.generate(request,response);
 ```

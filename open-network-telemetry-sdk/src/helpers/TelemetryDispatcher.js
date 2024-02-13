@@ -69,7 +69,7 @@ export class TelemetryDispatcher {
             const event = createTelemetryEvent(request, response, eventType, this.config);
 
             await this.storeData(event, `${dataType}-event`);
-            console.log(`${dataType} telemetry event generated :: api action: ${request.context.action} :: message id: ${request.context.message_id}`);
+            console.log(`${dataType} telemetry event generated :: api action: ${request?.context?.action} :: message id: ${request?.context?.message_id}`);
 
             const dataSize = await this.getDataSize(`${dataType}-event`);
             if (dataSize >= this.config.telemetry.batchSize) {

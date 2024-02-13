@@ -5,7 +5,6 @@ function testfunction(){
     let config = {
         "participantId": "le-ps-bap-network.onest.network",
         "participantUri": "http://le-ps-bap-network.onest.network",
-        "domain": "onest:learning-experiences",
         "role": "BAP",
         "telemetry": {
             "batchSize": 100,

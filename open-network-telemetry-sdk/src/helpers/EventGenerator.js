@@ -17,7 +17,7 @@ function createAPIEvent(request, response, config) {
     event.ver = "1.0";
 
     event.context = {
-        domain: request.context.domain,
+        domain: request?.context?.domain,
 
         producer: {
             id: config.participantId,
@@ -28,24 +28,24 @@ function createAPIEvent(request, response, config) {
     event.data = {
         url: `/${request?.context?.action}`,
         method: "POST",
-        action: request.context.action,
-        transactionid: request.context.transaction_id,
-        msgid: request.context.message_id,
+        action: request?.context?.action,
+        transactionid: request?.context?.transaction_id,
+        msgid: request?.context?.message_id,
         source: {
-            id: request?.context?.action?.includes("on_") ? request.context.bpp_id : request.context.bap_id,
+            id: request?.context?.action?.includes("on_") ? request?.context?.bpp_id : request?.context?.bap_id,
             type: request?.context?.action?.includes("on_") ? "provider" : "seeker",
-            uri: request?.context?.action?.includes("on_") ? request.context.bpp_uri : request.context.bap_uri
+            uri: request?.context?.action?.includes("on_") ? request?.context?.bpp_uri : request?.context?.bap_uri
         },
         target: {
-            id: request?.context?.action?.includes("on_") ? request.context.bap_id : request.context.bpp_id,
+            id: request?.context?.action?.includes("on_") ? request?.context?.bap_id : request?.context?.bpp_id,
             type: request?.context?.action?.includes("on_") ? "seeker" : "provider",
-            uri: request?.context?.action?.includes("on_") ? request.context.bap_uri : request.context.bpp_uri
+            uri: request?.context?.action?.includes("on_") ? request?.context?.bap_uri : request?.context?.bpp_uri
         }
     };
 
-    if (response.hasOwnProperty('statuscode')) event.data.statuscode = response.statuscode;
-    if (response.hasOwnProperty('duration')) event.data.duration = response.duration;
-    if (response.hasOwnProperty('error')) event.data.error = response.error;
+    if (response?.hasOwnProperty('statuscode')) event.data.statuscode = response.statuscode;
+    if (response?.hasOwnProperty('duration')) event.data.duration = response.duration;
+    if (response?.hasOwnProperty('error')) event.data.error = response.error;
 
     event.mid = generateCheckSum(event);
 

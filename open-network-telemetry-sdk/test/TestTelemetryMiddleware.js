@@ -7,11 +7,10 @@ app.use(express.json());
 let config = {
     "participantId": "le-ps-bap-network.onest.network",
     "participantUri": "http://le-ps-bap-network.onest.network",
-    "domain": "onest:learning-experiences",
     "role": "BAP",
     "telemetry": {
         "batchSize": 100,
-        "syncInterval": 5,
+        "syncInterval": 1,
         "retry": 3,
         "storageType": "LOCAL",
         "backupFilePath": "backups",
