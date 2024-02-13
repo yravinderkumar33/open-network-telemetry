@@ -1,3 +1,7 @@
-import { Telemetry } from './impl/Telemetry.js'
+import { telemetryMiddleware } from './impl/TelemetryMiddleware.js'
+import { Telemetry } from './impl/Telemetry.js';
 
-export default Telemetry;
+export {
+  Telemetry as default,
+  telemetryMiddleware
+};

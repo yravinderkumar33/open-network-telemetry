@@ -1,4 +1,4 @@
-import { Telemetry } from "./src/index.js"
+import { Telemetry } from "../src/impl/Telemetry.js"
 
 function testfunction(){
 
@@ -27,42 +27,10 @@ function testfunction(){
         }
     }
 
-    let request = {
-        "context": {
-            "domain": "onest:learning-experiences",
-            "action": "on_search",
-            "version": "1.1.0",
-            "bap_id": "le-ps-bap-network.onest.network",
-            "bap_uri": "https://le-ps-bap-network.onest.network",
-            "bpp_id": "le-ps-bpp-network.onest.network",
-            "bpp_uri": "https://le-ps-bpp-network.onest.network",
-            "transaction_id": "a9aaecca-10b7-4d19-b640-b047a7c62196",
-            "message_id": "0d30bfbf-87b8-43d2-8f95-36ebb9a24fd6",
-            "ttl": "PT10M",
-            "timestamp": "2023-02-15T15:14:30.560Z"
-        },
-        "message": {}
-    }
-
-    let response = {
-        "statuscode" : "200",
-        "duration": 350,
-        "message": {
-            "ack": {
-                "status": "ACK"
-            }
-        }
-    }
-
-    Telemetry.init(config)
-
-    Telemetry.generate(request, response)
-
-    
     let request1 = {
         "context": {
             "domain": "onest:learning-experiences",
-            "action": "select",
+            "action": "on_search",
             "version": "1.1.0",
             "bap_id": "le-ps-bap-network.onest.network",
             "bap_uri": "https://le-ps-bap-network.onest.network",
@@ -86,7 +54,39 @@ function testfunction(){
         }
     }
 
-    Telemetry.generate(request1, response1);
+    Telemetry.init(config)
+
+    Telemetry.generate(request1, response1)
+
+    
+    let request2 = {
+        "context": {
+            "domain": "onest:learning-experiences",
+            "action": "select",
+            "version": "1.1.0",
+            "bap_id": "le-ps-bap-network.onest.network",
+            "bap_uri": "https://le-ps-bap-network.onest.network",
+            "bpp_id": "le-ps-bpp-network.onest.network",
+            "bpp_uri": "https://le-ps-bpp-network.onest.network",
+            "transaction_id": "a9aaecca-10b7-4d19-b640-b047a7c62196",
+            "message_id": "0d30bfbf-87b8-43d2-8f95-36ebb9a24fd6",
+            "ttl": "PT10M",
+            "timestamp": "2023-02-15T15:14:30.560Z"
+        },
+        "message": {}
+    }
+
+    let response2 = {
+        "statuscode" : "200",
+        "duration": 350,
+        "message": {
+            "ack": {
+                "status": "ACK"
+            }
+        }
+    }
+
+    Telemetry.generate(request2, response2);
 }
 
 testfunction()

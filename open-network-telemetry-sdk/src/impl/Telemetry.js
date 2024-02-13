@@ -15,7 +15,7 @@ export class Telemetry {
                 Telemetry.dispatcher = new TelemetryDispatcher(Telemetry.config);
                 setInterval(() => {
                     Telemetry.dispatcher.syncTelemetry(true)
-                }, Telemetry.config.telemetry.syncInterval * 1000);
+                }, Telemetry.config.telemetry.syncInterval * 60 * 1000);
             }
         } catch (error) {
             console.log(error);
