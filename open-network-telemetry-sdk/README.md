@@ -179,7 +179,7 @@ res.body:
 }
 ```
 
-### Generate Telemetry Using Class:
+### Generate Telemetry Using Functions:
 
 Telemetry is a singleton class, once it is initialized, can be used anywhere in the application to generate the telemetry.
 **Method signature:**
