@@ -2,10 +2,15 @@
   "name": "open-network-telemetry-sdk",
   "version": "1.0.0",
   "description": "SDK to generate telemetry based on open network specifications",
-  "main": "src/index.js",
-  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "babel": {
+    "plugins": [
+      "@babel/plugin-syntax-import-assertions",
+      "@babel/plugin-transform-modules-commonjs"
+    ]
   },
   "author": "shiva-rakshith",
   "license": "ISC",
@@ -27,5 +32,10 @@
     "type": "git",
     "url": "git+https://github.com/Sunbird-Obsrv/open-network-telemetry.git"
   },
-  "homepage": "https://github.com/Sunbird-Obsrv/open-network-telemetry/tree/main/open-network-telemetry-sdk#readme"
+  "homepage": "https://github.com/Sunbird-Obsrv/open-network-telemetry/tree/main/open-network-telemetry-sdk#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.23.9",
+    "@babel/plugin-syntax-import-assertions": "^7.23.3",
+    "@babel/plugin-transform-modules-commonjs": "^7.23.3"
+  }
 }
