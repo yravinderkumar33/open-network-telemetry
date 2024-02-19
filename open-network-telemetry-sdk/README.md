@@ -24,6 +24,7 @@ Following are the details about configuration properties. To generate telemetry 
 | rawData.url          | URL for sending raw telemetry data to participant data platform   | Optional | -             |
 
 #### Sample Config:
+
 ```json
 {
   "participantId": "test.bap-123",
@@ -58,6 +59,7 @@ SDK generates the following type of events:
 2. Raw Event - This event will be sent to participant data platfrom.
 
 **API Event Example:**
+
 ```json
 {
   "eid": "API",
@@ -94,6 +96,7 @@ SDK generates the following type of events:
 ```
 
 **Raw Event Example:**
+
 ```json
 {
   "context": {
@@ -125,6 +128,7 @@ SDK generates the following type of events:
 ```
 
 ### Genrate Telemetry Using Middleware:
+
 ```javascript
 app.use(telemetryMiddleware(config));
 ```
@@ -182,6 +186,7 @@ res.body:
 ### Generate Telemetry Using Functions:
 
 Telemetry is a singleton class, once it is initialized, can be used anywhere in the application to generate the telemetry.
+
 **Method signature:**
 ```javascript
 Telemetry.init(config);
