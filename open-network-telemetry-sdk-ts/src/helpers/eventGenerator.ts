@@ -169,7 +169,7 @@ const transformAudit = (payload: IAudit) => {
         observedTimeUnixNano: timestamp,
         severityNumber,
         traceId,
-        spanId: '',
+        spanId: v4(),
         body: { stringValue: message },
         attributes: transformAttributes({ ...object, ...attributes })
     }
