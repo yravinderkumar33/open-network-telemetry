@@ -99,3 +99,10 @@ export function generateMd5Hash(data: Record<string, any> | Record<string, any>[
 export const currentTimeNano = () => {
     return nanoTime();
 }
+
+export const prefixWith = (object: Record<string, any>, prefix: string) => {
+    return _.reduce(object, (prev: Record<string, any>, value: any, key: string) => {
+        prev[`${prefix}.${key}`] = value;
+        return prev;
+    }, {})
+}

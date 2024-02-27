@@ -19,17 +19,12 @@ init(config: Record<string, any>)
 
 Middleware to register and generate API events for the action API's (search, select, init  etc). 
 ```
-onApi(ctx: ITrace)(request: Request, response: Response, next: NextFunction)
+onApi(ctx: ITrace)(request: Request | Record<string, any>, response: Response | Record<string, any>, next?: NextFunction)
 ```
 
 Middleware to register and generate TRACE events for the on_action API's (on_search, on_select, on_init  etc). 
 ```
-onCallback(ctx: ITrace)(request: Request, response: Response, next: NextFunction)
-```
-
-Method to generate on demand API events by passing request and response object
-```
-generate(request: Record<string, any>, response: Record<string, any>, ctx: ITrace)
+onCallback(ctx: ITrace)(request: Request | Record<string, any>, response: Response | Record<string, any>, next?: NextFunction)
 ```
 
 Method to generate metric event
@@ -249,14 +244,6 @@ additionalData
 ```
 
 <hr>
-
-**generate**
-
-This method generates on demand API events. Pass the request and response body object as arguements
-
-```
-generate(request, response, additionalData)
-```
 
 **Sample Events**
 

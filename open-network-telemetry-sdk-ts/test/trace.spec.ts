@@ -191,7 +191,7 @@ const custom = () => {
         }
     }
 
-    Telemetry.generate(request, response);
+    Telemetry.onApi({})(request, response);
 }
 
 var server = app.listen(8081, () => {

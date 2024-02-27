@@ -19,20 +19,27 @@ export const init = (config: Record<string, any>) => (request: Request, response
     next();
 }
 
-export const onApi = (ctx: ITrace) => (request: Request, response: Response, next: NextFunction) => {
-    checkIfInitialized(request);
-    request.telemetryMetadata.ctx = ctx;
-    next();
+export const onApi = (ctx: ITrace) => (request: Request | Record<string, any>, response: Response | Record<string, any>, next?: NextFunction) => {
+    checkIfInitialized();
+    if (next) {
+        request.telemetryMetadata.ctx = ctx;
+        next();
+    } else {
+        generate(request, response, ctx);
+    }
 }
 
-export const onCallback = (ctx: ITrace) => (request: Request, response: Response, next: NextFunction) => {
-    checkIfInitialized(request);
-    request.telemetryMetadata.ctx = ctx;
-    next();
+export const onCallback = (ctx: ITrace) => (request: Request | Record<string, any>, response: Response | Record<string, any>, next?: NextFunction) => {
+    checkIfInitialized();
+    if (next) {
+        request.telemetryMetadata.ctx = ctx;
+        next();
+    } else {
+        generate(request, response, ctx);
+    }
 }
 
 export const generate = (request: Record<string, any>, response: Record<string, any>, ctx: ITrace = {}) => {
-    checkIfInitialized();
     request.telemetryMetadata = { startTimeUnixNano: currentTimeNano(), globalConfig, ctx: ctx || {}, reqObjNotPresent: true };
     const event = generateTraceEvent(request as any, response as any);
     dispatcher.processTelemetry(event, "api");
@@ -60,9 +67,8 @@ const initializeDispatcher = (config: Record<string, any>) => {
     }
 }
 
-const checkIfInitialized = (request?: Request) => {
-    const serviceInitialized = request ? (_.get(request, 'telemetryMetadata.initialized', false)) : isInitialized;
-    if (!serviceInitialized) {
+const checkIfInitialized = () => {
+    if (!isInitialized) {
         throw new Error("SDK is not initialized")
     }
 }
@@ -85,7 +91,7 @@ const registerInterceptor = (request: Request, response: Response) => {
         if (isInitialized && response.statusCode != 404) {
             const event = generateTraceEvent(request, response);
             dispatcher.processTelemetry(event, "api");
-            const rawEvent = generateRawEvent(_.get(request, 'body'), _.get(response, 'locals.responseBody'))
+            const rawEvent = generateRawEvent(_.get(request, 'body', {}), _.get(response, 'locals.responseBody', {}))
             dispatcher.processTelemetry(rawEvent, "raw");
         }
     })

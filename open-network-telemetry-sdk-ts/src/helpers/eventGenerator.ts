@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { AdditionalData, DataPoint, IAudit, IMetric, ITrace } from '../../@types';
 import _ from 'lodash';
-import { transformAttributes, generateMd5Hash, currentTimeNano } from '../utils/common';
+import { transformAttributes, generateMd5Hash, currentTimeNano, prefixWith } from '../utils/common';
 import { getEventMetadata, getRequestAttributes, getStatus } from '../utils/api'
 import { v4 } from 'uuid';
 
@@ -133,7 +133,7 @@ const transformDataPoint = (dataPoint: DataPoint) => {
         endTimeUnixNano: end,
         attributes: transformAttributes({
             observedTimeUnixNano: currentTimeNano(),
-            ...metric,
+            ...prefixWith(metric, "metric"),
             ...attributes
         })
     }
