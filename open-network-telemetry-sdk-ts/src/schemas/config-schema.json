@@ -68,7 +68,32 @@
         }
       },
       "required": ["batchSize", "syncInterval", "retry", "storageType", "network", "backupFilePath"]
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "additionalProperties": true
+    },
+    "resource": {
+      "type": "object",
+      "properties": {
+        "attributes": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
     }
   },
-  "required": ["participantId", "participantUri", "role", "telemetry"]
+  "required": ["participantId", "participantUri", "role", "telemetry", "service"]
 }
