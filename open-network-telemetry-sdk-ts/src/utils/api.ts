@@ -1,4 +1,4 @@
-import { Request, Response, response } from 'express';
+import { Request, Response } from 'express';
 import _ from 'lodash';
 import { currentTimeNano } from './common';
 
@@ -13,15 +13,15 @@ export const getRequestAttributes = (req: Request, res: Response, reqObjNotPrese
             "http.host": hostname,
             "http.user_agent": req.get("User Agent"),
             "http.scheme": protocol,
-            "http.status.code": response.statusCode
+            "http.status.code": res.statusCode || res.status
         })
     }
 }
 
 export const getEventMetadata = (request: Request, response: Response, reqObjNotPresent: boolean) => {
     const requestBody = reqObjNotPresent ? request : _.get(request, 'body', {});
-    const responseBody = reqObjNotPresent ? response : _.get(response, 'locals.responseBody');
-    const statusCode = response.statusCode;
+    const responseBody = reqObjNotPresent ? _.get(response, 'data', response) : _.get(response, 'locals.responseBody');
+    const statusCode = reqObjNotPresent ? _.get(response, 'status') : _.get(response, 'statusCode')
     const isError = reqObjNotPresent ? false : getStatus(statusCode) === "Error";
 
     return [
@@ -37,7 +37,7 @@ export const getEventMetadata = (request: Request, response: Response, reqObjNot
                 name: 'response_info',
                 time: new Date().toISOString(),
                 attributes: {
-                    "resBody": JSON.stringify(responseBody || {})
+                    "resBody": typeof responseBody === 'string' ? responseBody : JSON.stringify(responseBody)
                 }
             }
         ] : [
@@ -54,7 +54,7 @@ export const getEventMetadata = (request: Request, response: Response, reqObjNot
     ]
 }
 
-export const getStatus = (statusCode: number) => {
+export const getStatus = (statusCode: any) => {
     if (statusCode >= 200 && statusCode < 300) return "Ok"
     return "Error"
 }

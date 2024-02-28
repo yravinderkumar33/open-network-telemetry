@@ -8,13 +8,11 @@ import { currentTimeNano } from '../utils/common';
 
 let globalConfig: Record<string, any> = {};
 let dispatcher: any;
-let isInitialized = false;
 
 export const init = (config: Record<string, any>) => (request: Request, response: Response, next: NextFunction) => {
     globalConfig = validateConfig(config);
     initializeDispatcher(globalConfig);
-    request.telemetryMetadata = { initialized: true, startTimeUnixNano: currentTimeNano(), globalConfig, ctx: {} };
-    registerInterceptor(request, response);
+    request.telemetryMetadata = { startTimeUnixNano: currentTimeNano(), globalConfig, ctx: {} };
     interceptResponse(response);
     next();
 }
@@ -22,6 +20,7 @@ export const init = (config: Record<string, any>) => (request: Request, response
 export const onApi = (ctx: ITrace) => (request: Request | Record<string, any>, response: Response | Record<string, any>, next?: NextFunction) => {
     checkIfInitialized();
     if (next) {
+        registerInterceptor(request as Request, response as Response);
         request.telemetryMetadata.ctx = ctx;
         next();
     } else {
@@ -32,6 +31,7 @@ export const onApi = (ctx: ITrace) => (request: Request | Record<string, any>, r
 export const onCallback = (ctx: ITrace) => (request: Request | Record<string, any>, response: Response | Record<string, any>, next?: NextFunction) => {
     checkIfInitialized();
     if (next) {
+        registerInterceptor(request as Request, response as Response);
         request.telemetryMetadata.ctx = ctx;
         next();
     } else {
@@ -62,13 +62,12 @@ export const onAudit = (ctx: IAudit | IAudit[], additionalData: AdditionalData =
 const initializeDispatcher = (config: Record<string, any>) => {
     if (!dispatcher) {
         dispatcher = telemetryDispatcher(config);
-        isInitialized = true;
         setInterval(() => { dispatcher.syncTelemetry() }, config?.telemetry?.syncInterval * 60 * 1000);
     }
 }
 
 const checkIfInitialized = () => {
-    if (!isInitialized) {
+    if (!dispatcher) {
         throw new Error("SDK is not initialized")
     }
 }
@@ -88,7 +87,7 @@ const interceptResponse = (response: Response) => {
 
 const registerInterceptor = (request: Request, response: Response) => {
     response.on('finish', () => {
-        if (isInitialized && response.statusCode != 404) {
+        if (dispatcher && response.statusCode != 404) {
             const event = generateTraceEvent(request, response);
             dispatcher.processTelemetry(event, "api");
             const rawEvent = generateRawEvent(_.get(request, 'body', {}), _.get(response, 'locals.responseBody', {}))
