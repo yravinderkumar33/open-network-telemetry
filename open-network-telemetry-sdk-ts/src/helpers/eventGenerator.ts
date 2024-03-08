@@ -18,8 +18,10 @@ export const generateTraceEvent = (request: Request, response: Response) => {
 
     const spanAttributes = {
         "sender.id": isPrefixedWithOn ? _.get(body, 'context.bpp_id', '') : _.get(body, 'context.bap_id', ''),
+        "sender.type": isPrefixedWithOn ? "provider" : "seeker",
         "recipient.id": isPrefixedWithOn ? _.get(body, 'context.bap_id', '') : _.get(body, 'context.bpp_id', ''),
         "sender.uri": isPrefixedWithOn ? _.get(body, 'context.bpp_uri', '') : _.get(body, 'context.bap_uri', ''),
+        "recipient.type": isPrefixedWithOn ? "seeker" : "provider",
         "recipient.uri": isPrefixedWithOn ? _.get(body, 'context.bap_uri', '') : _.get(body, 'context.bpp_uri', ''),
         "span_uuid": generateMd5Hash({ ets: currentTimeNano(), pid: isPrefixedWithOn ? _.get(body, 'context.bpp_id', '') : _.get(body, 'context.bap_id', ''), messageId: _.get(body, 'context.message_id', ''), transactionId: _.get(body, 'context.transaction_id', '') }),
         ...getRequestAttributes(request, response, reqObjNotPresent),
@@ -133,6 +135,7 @@ const transformDataPoint = (dataPoint: DataPoint) => {
         endTimeUnixNano: end,
         attributes: transformAttributes({
             observedTimeUnixNano: currentTimeNano(),
+            metric_uuid: v4(),
             ...prefixWith(metric, "metric"),
             ...attributes
         })
@@ -171,6 +174,6 @@ const transformAudit = (payload: IAudit) => {
         traceId,
         spanId: v4(),
         body: { stringValue: message },
-        attributes: transformAttributes({ ...object, ...attributes })
+        attributes: transformAttributes({ log_uuid: v4(), ...object, ...attributes })
     }
 }
