@@ -114,7 +114,7 @@ export const generateMetricEvent = (ctx: IMetric[], globalConfig: Record<string,
 
 export const generateRawEvent = (request: Record<string, any>, response: Record<string, any>) => {
     request.response = response;
-    return request;
+    return _.omit(request, ['telemetryMetadata']);
 }
 
 const getGlobalResourceAttributes = (payload: Record<string, any>, globalConfig: Record<string, any>) => {
