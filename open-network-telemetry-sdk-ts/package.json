@@ -1,6 +1,6 @@
 {
-  "name": "beckn-telemetry-sdk",
-  "version": "1.0.2",
+  "name": "network-telemetry-sdk",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "types": "index.d.ts",
