@@ -10,6 +10,7 @@ export const generateTraceEvent = (request: Request, response: Response) => {
     const reqObjNotPresent = _.get(request, 'telemetryMetadata.reqObjNotPresent', false);
     const globalConfig = _.get(request, 'telemetryMetadata.globalConfig');
     const { scope = {}, data = {} } = ctx;
+    const { name =  ""} = scope || {};
     const body = reqObjNotPresent ? request : _.get(request, 'body', {});
     const { attributes: spanAdditionalAttributes = {}, events = [] } = data;
     const { attributes = {} } = scope || {};
@@ -18,10 +19,8 @@ export const generateTraceEvent = (request: Request, response: Response) => {
 
     const spanAttributes = {
         "sender.id": isPrefixedWithOn ? _.get(body, 'context.bpp_id', '') : _.get(body, 'context.bap_id', ''),
-        "sender.type": isPrefixedWithOn ? "provider" : "seeker",
         "recipient.id": isPrefixedWithOn ? _.get(body, 'context.bap_id', '') : _.get(body, 'context.bpp_id', ''),
         "sender.uri": isPrefixedWithOn ? _.get(body, 'context.bpp_uri', '') : _.get(body, 'context.bap_uri', ''),
-        "recipient.type": isPrefixedWithOn ? "seeker" : "provider",
         "recipient.uri": isPrefixedWithOn ? _.get(body, 'context.bap_uri', '') : _.get(body, 'context.bpp_uri', ''),
         "span_uuid": generateMd5Hash({ ets: currentTimeNano(), pid: isPrefixedWithOn ? _.get(body, 'context.bpp_id', '') : _.get(body, 'context.bap_id', ''), messageId: _.get(body, 'context.message_id', ''), transactionId: _.get(body, 'context.transaction_id', '') }),
         ...getRequestAttributes(request, response, reqObjNotPresent),
@@ -29,13 +28,14 @@ export const generateTraceEvent = (request: Request, response: Response) => {
     };
 
     const httpEvents = getEventMetadata(request, response, reqObjNotPresent);
-    const spanEvents = _.map([...httpEvents, ...events], transformEvent);
+    // const spanEvents = _.map([...httpEvents, ...events], transformEvent);
+    const spanEvents = events
 
     const spans = [
         {
-            "name": _.get(body, 'context.action', ''),
-            "traceId": _.get(body, 'context.transaction_id', ''),
-            "spanId": _.get(body, 'context.message_id', ''),
+            "name": name,
+            "traceId": generateMd5Hash(_.get(body, 'Customer.id', '')),
+            "spanId": _.get(body, 'txnid', ''),
             "startTimeUnixNano": _.get(request, 'telemetryMetadata.startTimeUnixNano', currentTimeNano()),
             "endTimeUnixNano": currentTimeNano(),
             "status": getStatus(response.statusCode),
@@ -45,7 +45,7 @@ export const generateTraceEvent = (request: Request, response: Response) => {
     ];
 
     const scopeAttributes = { ...attributes, scope_uuid: generateMd5Hash({ spans, pid: _.get(globalConfig, 'participantId', '') }), count: 1 };
-    const scopeCtx = { name: _.get(globalConfig, 'service.name', null), version: _.get(globalConfig, 'service.version', null), attributes: transformAttributes(scopeAttributes) };
+    const scopeCtx = { name: name, version: _.get(globalConfig, 'service.version', null), attributes: transformAttributes(scopeAttributes) };
 
     return {
         "resourceSpans": [
@@ -122,6 +122,7 @@ const getGlobalResourceAttributes = (payload: Record<string, any>, globalConfig:
     return {
         eid,
         producer: _.get(globalConfig, 'participantId', ''),
+        producerType: _.get(globalConfig, 'participantType', ''),
         ...(domain && { domain }),
         ..._.get(globalConfig, 'resource.attributes', {})
     }

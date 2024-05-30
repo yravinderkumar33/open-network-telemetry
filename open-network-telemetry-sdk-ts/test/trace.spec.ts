@@ -15,7 +15,8 @@ app.use(
 );
 
 let config = {
-    "participantId": "le-ps-bap-network.onest.network",
+    "participantId": "sahamati-proxy",
+    "participantType": "Proxy",
     "participantUri": "http://le-ps-bap-network.onest.network",
     "role": "BAP",
     "telemetry": {
@@ -51,10 +52,11 @@ app.use(Telemetry.init(config));
 
 const data = {
     "scope": {
+        "name": "Account Discovery",
         "attributes": {}
     },
     "data": {
-        "attributes": {},
+        "attributes": {"sender.id": "AA1", "recipient.id": "FIP1", "recipient.uri": "https://FIP1-uat.onemoney.in/Accounts/discover"},
         "events": []
     }
 }
