@@ -24,12 +24,15 @@ export default (config: Record<string, any>) => {
     const backupFolderPath = config?.telemetry?.backupFilePath || 'backups';
 
     const processTelemetry = async (event: Record<string, any>, eventType: string) => {
+        const batchSize = _.get(config, 'telemetry.batchSize'), maxBatchSizeInKb = _.get(config, 'telemetry.maxBatchSizeInKb', 2000)
         if (eventType in urls) {
             try {
                 console.log(JSON.stringify(event))
                 await storeData(event, eventType);
                 const dataSize = await getDataSize(eventType);
-                if (dataSize >= config.telemetry.batchSize) {
+                const sizeInKb = await getDataSizeInKb(eventType);
+                if (dataSize >= batchSize || sizeInKb >= maxBatchSizeInKb) {
+                    console.log("Syncing Telemetry", { dataSize, sizeInKb });
                     await syncTelemetry();
                 }
             } catch (error: any) {
@@ -157,6 +160,16 @@ export default (config: Record<string, any>) => {
         archive.append(JSON.stringify({ type: dataType, payload }), { name: `${fileName}.json` });
         archive.finalize();
         console.log(`Data stored locally in file: ${zipFileName}`);
+    }
+
+    const getDataSizeInKb = async (eventType: string) => {
+        try {
+            const data = await getData(eventType);
+            const size = new TextEncoder().encode(JSON.stringify(data)).length;
+            return size ? (size / 1024) : 0
+        } catch (error) {
+            return 0;
+        }
     }
 
     return {

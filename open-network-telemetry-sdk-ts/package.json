@@ -1,15 +1,25 @@
 {
-  "name": "open-network-telemetry-sdk",
-  "version": "1.0.0",
+  "name": "beckn-telemetry-sdk",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
+  "types": "index.d.ts",
+  "module": "index.mjs",
   "scripts": {
     "start": "ts-node ./src",
-    "test": "ts-node ./test/trace.spec.ts"
+    "test": "ts-node ./test/trace.spec.ts",
+    "build": "tsup",
+    "postbuild": "cp package.json ./dist",
+    "package": "npm run build && cd dist && npm pack"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "open-network-telemetry-sdk",
+    "open-network",
+    "OTEL",
+    "sdk"
+  ],
+  "author": "Ravinder Kumar",
+  "license": "MIT",
   "dependencies": {
     "ajv": "^8.12.0",
     "archiver": "^6.0.1",
@@ -34,6 +44,7 @@
     "@types/unzipper": "^0.10.9",
     "@types/uuid": "^9.0.8",
     "ts-node": "^10.9.2",
+    "tsup": "^8.0.2",
     "typescript": "^5.3.3"
   }
 }
