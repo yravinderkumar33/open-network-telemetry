@@ -16,7 +16,7 @@ const eventsLogger = (config: Record<string, any>) => {
         filename: 'telemetry-%DATE%.log',
         datePattern: 'YYYY-MM-DD',
         zippedArchive: true,
-        maxSize: '5k',
+        maxSize: '250m',
         maxFiles: '7d',
         dirname: "logs"
     }
