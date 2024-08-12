@@ -150,6 +150,17 @@ export default (config: Record<string, any>, logger: (payload: ILog) => any) => 
         logger({ level: "info", message: event });
     }
 
+    const pushToTelemetryServer = async (dataType: string, events: Record<string, any>[]) => {
+        const url = _.get(urls, dataType);
+        if (!url) return;
+        return axios.post(url, {
+            data: {
+                id: generateMd5Hash(events),
+                events,
+            }
+        });
+    }
+
     const createBackup = async (dataType: string, payload: any) => {
         await fsPromises.access(backupFolderPath).then(() => true).catch(() => fsPromises.mkdir(backupFolderPath, { recursive: true }));
         const fileName = `telemetry_${dataType}_data_${Date.now()}`;
