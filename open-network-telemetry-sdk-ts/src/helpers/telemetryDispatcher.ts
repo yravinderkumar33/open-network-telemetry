@@ -8,8 +8,9 @@ import unzipper from "unzipper";
 import archiver from "archiver";
 import axios from 'axios';
 import { generateMd5Hash } from '../utils/common';
+import { ILog } from './logger';
 
-export default (config: Record<string, any>) => {
+export default (config: Record<string, any>, logger: (payload: ILog) => any) => {
 
     const urls = {
         api: config?.telemetry?.network?.url,
@@ -27,7 +28,6 @@ export default (config: Record<string, any>) => {
         const batchSize = _.get(config, 'telemetry.batchSize'), maxBatchSizeInKb = _.get(config, 'telemetry.maxBatchSizeInKb', 2000)
         if (eventType in urls) {
             try {
-                console.log(JSON.stringify(event))
                 await storeData(event, eventType);
                 const dataSize = await getDataSize(eventType);
                 const sizeInKb = await getDataSizeInKb(eventType);
@@ -89,7 +89,7 @@ export default (config: Record<string, any>) => {
                 if (dataSize === 0) continue;
                 try {
                     const events = await getData(dataType)
-                    await pushToTelemetryServer(dataType, events);
+                    await writeToLogFile(dataType, events);
                     console.log(`${dataType} data is successfully pushed to server!!!`);
                     await flushData(dataType);
                     await processBackupFiles();
@@ -127,7 +127,7 @@ export default (config: Record<string, any>) => {
                     const dataType = extractedData.type;
                     const telemetryServerUrl = _.get(urls, dataType);
                     if (telemetryServerUrl) {
-                        await pushToTelemetryServer(dataType, extractedData.payload);
+                        await writeToLogFile(dataType, extractedData.payload);
                         fsPromises.access(filePath).then(() => fsPromises.unlink(filePath)).catch(() => console.log(`File does not exist ${filePath}`))
                         fsPromises.access(`extracted_data/${fileName}.json`).then(() => fsPromises.rm(`extracted_data/${fileName}.json`, { recursive: true })).catch(() => () => console.log(`File does not exist ${filePath}`));
                         console.log(`Backup data from ${file} successfully pushed to ${dataType} server!!!`);
@@ -139,15 +139,15 @@ export default (config: Record<string, any>) => {
         }
     }
 
-    const pushToTelemetryServer = async (dataType: string, events: Record<string, any>[]) => {
+    const writeToLogFile = async (dataType: string, events: Record<string, any>[]) => {
         const url = _.get(urls, dataType);
         if (!url) return;
-        return axios.post(url, {
-            data: {
-                id: generateMd5Hash(events),
-                events,
-            }
-        });
+        if (!logger) {
+            console.log("Error while syncing telemetry. Logger not initialized")
+            return;
+        }
+        const event = { data: { id: generateMd5Hash(events), events } };
+        logger({ level: "info", message: event });
     }
 
     const createBackup = async (dataType: string, payload: any) => {

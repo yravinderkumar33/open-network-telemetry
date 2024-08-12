@@ -5,12 +5,16 @@ import { generateAuditEvent, generateMetricEvent, generateRawEvent, generateTrac
 import { AdditionalData, IAudit, IMetric, ITrace } from '../../@types';
 import _ from 'lodash';
 import { currentTimeNano } from '../utils/common';
+import eventsLogger, { ILog } from '../helpers/logger';
 
 let globalConfig: Record<string, any> = {};
 let dispatcher: any;
+let logger: (paylod: ILog) => any;
 
 export const init = (config: Record<string, any>) => (request: Request, response: Response, next: NextFunction) => {
+    if(dispatcher) return next()
     globalConfig = validateConfig(config);
+    logger = eventsLogger(config);
     initializeDispatcher(globalConfig);
     request.telemetryMetadata = { startTimeUnixNano: currentTimeNano(), globalConfig, ctx: {} };
     interceptResponse(response);
@@ -61,7 +65,7 @@ export const onAudit = (ctx: IAudit | IAudit[], additionalData: AdditionalData =
 
 const initializeDispatcher = (config: Record<string, any>) => {
     if (!dispatcher) {
-        dispatcher = telemetryDispatcher(config);
+        dispatcher = telemetryDispatcher(config, logger);
         setInterval(() => { dispatcher.syncTelemetry() }, config?.telemetry?.syncInterval * 60 * 1000);
     }
 }

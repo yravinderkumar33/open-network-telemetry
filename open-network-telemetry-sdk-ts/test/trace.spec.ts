@@ -45,6 +45,9 @@ let config = {
         "attributes": {
 
         }
+    },
+    "loggerOptions": {
+        dirname: "service-logs"
     }
 }
 

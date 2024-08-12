@@ -93,6 +93,11 @@
         }
       },
       "additionalProperties": true
+    },
+    "loggerOptions": {
+      "type": "object",
+      "additionalProperties": true,
+      "default": {}
     }
   },
   "required": ["participantId", "participantUri", "role", "telemetry", "service"]

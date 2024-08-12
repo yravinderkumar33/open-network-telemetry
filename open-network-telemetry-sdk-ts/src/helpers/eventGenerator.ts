@@ -28,8 +28,8 @@ export const generateTraceEvent = (request: Request, response: Response) => {
     };
 
     const httpEvents = getEventMetadata(request, response, reqObjNotPresent);
-    // const spanEvents = _.map([...httpEvents, ...events], transformEvent);
-    const spanEvents = events
+    const spanEvents = _.map([...httpEvents, ...events], transformEvent);
+    // const spanEvents = events
 
     const spans = [
         {

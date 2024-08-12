@@ -1,6 +1,6 @@
 {
   "name": "network-telemetry-sdk",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "types": "index.d.ts",
@@ -34,7 +34,9 @@
     "nano-time": "^1.0.0",
     "object-sizeof": "^2.6.4",
     "unzipper": "^0.10.14",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "winston": "^3.14.1",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.2",
