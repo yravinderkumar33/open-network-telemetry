@@ -47,8 +47,6 @@ export const generate = (request: Record<string, any>, response: Record<string, 
     request.telemetryMetadata = { startTimeUnixNano: currentTimeNano(), globalConfig, ctx: ctx || {}, reqObjNotPresent: true };
     const event = generateTraceEvent(request as any, response as any);
     dispatcher.processTelemetry(event, "api");
-    const rawEvent = generateRawEvent(request, response);
-    dispatcher.processTelemetry(rawEvent, "raw");
 }
 
 export const onMetric = (ctx: IMetric | IMetric[], additionalData: AdditionalData = {}) => {
@@ -94,8 +92,6 @@ const registerInterceptor = (request: Request, response: Response) => {
         if (dispatcher && response.statusCode != 404) {
             const event = generateTraceEvent(request, response);
             dispatcher.processTelemetry(event, "api");
-            const rawEvent = generateRawEvent(_.get(request, 'body', {}), _.get(response, 'locals.responseBody', {}))
-            dispatcher.processTelemetry(rawEvent, "raw");
         }
     })
 }
